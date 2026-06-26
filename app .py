@@ -1,5 +1,5 @@
 import streamlit as st
-from langchain_community.document_loaders import PyPDFDirectoryLoader
+from langchain_community.document_loaders import PyPDFPlumberDirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -13,11 +13,15 @@ st.title("🏢 Zyro Dynamics HR Help Desk")
 
 @st.cache_resource
 def get_retriever():
-    loader = UnstructuredPDFLoader("./data")
+    loader = PyPDFPlumberDirectoryLoader("./data")
     documents = loader.load()
-    splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=200)
+    splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=200, add_start_index=True)
     chunks = splitter.split_documents(documents)
-    embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en-v1.5")
+    embeddings = HuggingFaceEmbeddings(
+        model_name="BAAI/bge-large-en-v1.5",
+        model_kwargs={'device': 'cpu'}, 
+        encode_kwargs={'normalize_embeddings': True}
+    )
     vectorstore = FAISS.from_documents(chunks, embeddings)
     return vectorstore.as_retriever(search_kwargs={"k": 5})
 
