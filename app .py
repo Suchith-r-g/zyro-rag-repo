@@ -13,7 +13,7 @@ st.title("🏢 Zyro Dynamics HR Help Desk")
 
 @st.cache_resource
 def get_retriever():
-    loader = PyPDFDirectoryLoader("./data")
+    loader = UnstructuredPDFLoader("./data")
     documents = loader.load()
     splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=200)
     chunks = splitter.split_documents(documents)
