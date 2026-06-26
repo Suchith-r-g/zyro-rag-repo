@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from langchain_community.document_loaders import DirectoryLoader, PDFPlumberLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -13,10 +14,16 @@ st.title("🏢 Zyro Dynamics HR Help Desk")
 
 @st.cache_resource
 def get_retriever():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(current_dir, "data")
+    
+    if not os.path.exists(data_dir):
+        st.error(f"Cannot find the folder: {data_dir}. Did you upload it to GitHub?")
+        st.stop()
     loader = DirectoryLoader(
-    "/kaggle/input/competitions/niat-masterclass-rag-challenge/zyro-dynamics-hr-corpus",
-    glob="**/*.pdf", 
-    loader_cls=PDFPlumberLoader
+        data_dir,
+        glob="**/*.pdf", 
+        loader_cls=PDFPlumberLoader
     )
     documents = loader.load()
     splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=200, add_start_index=True)
@@ -26,9 +33,9 @@ def get_retriever():
         model_kwargs={'device': 'cpu'}, 
         encode_kwargs={'normalize_embeddings': True}
     )
+    
     vectorstore = FAISS.from_documents(chunks, embeddings)
     return vectorstore.as_retriever(search_kwargs={"k": 5})
-
 # Initialize LLM using Streamlit Secrets
 llm = ChatGroq(model_name="llama-3.3-70b-versatile", api_key=st.secrets["GROQ_API_KEY"])
 retriever = get_retriever()
