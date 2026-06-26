@@ -15,11 +15,11 @@ st.title("🏢 Zyro Dynamics HR Help Desk")
 def get_retriever():
     loader = PyPDFDirectoryLoader("./data")
     documents = loader.load()
-    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=200)
     chunks = splitter.split_documents(documents)
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en-v1.5")
     vectorstore = FAISS.from_documents(chunks, embeddings)
-    return vectorstore.as_retriever(search_kwargs={"k": 4})
+    return vectorstore.as_retriever(search_kwargs={"k": 5})
 
 # Initialize LLM using Streamlit Secrets
 llm = ChatGroq(model_name="llama-3.3-70b-versatile", api_key=st.secrets["GROQ_API_KEY"])
