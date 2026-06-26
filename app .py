@@ -13,7 +13,11 @@ st.title("🏢 Zyro Dynamics HR Help Desk")
 
 @st.cache_resource
 def get_retriever():
-    loader = PyPDFPlumberDirectoryLoader("./data")
+    loader = DirectoryLoader(
+    "/kaggle/input/competitions/niat-masterclass-rag-challenge/zyro-dynamics-hr-corpus",
+    glob="**/*.pdf", 
+    loader_cls=PDFPlumberLoader
+    )
     documents = loader.load()
     splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=200, add_start_index=True)
     chunks = splitter.split_documents(documents)
