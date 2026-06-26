@@ -6,5 +6,5 @@ langchain-huggingface
 langchain-groq
 langchain-classic
 faiss-cpu
-pypdf
+pdfplumber
 sentence-transformers
